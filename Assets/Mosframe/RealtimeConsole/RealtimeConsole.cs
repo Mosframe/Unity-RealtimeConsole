@@ -166,7 +166,7 @@ namespace Mosframe
 
         void onLogMessageReceived( string message, string stackTrace, LogType type ) {
 
-            this.storage.Add( new MessageInfo(){ message = string.Format( "[{0} {1}]", DateTime.Now.ToString("HH:mm:ss"), message ), stackTrace=stackTrace, type=type } );
+            this.storage.Add( new MessageInfo(){ message = string.Format( "[{0}] {1}", DateTime.Now.ToString("HH:mm:ss"), message ), stackTrace=stackTrace, type=type } );
             if( this.storage.Count > MaxStorageSize ) {
                 this.storage.RemoveAt(0);
             }
