@@ -24,6 +24,7 @@
             var go = new GameObject( "Console Canvas" ) {
                 hideFlags = HideFlags.HideInHierarchy
             };
+            UnityEngine.Object.DontDestroyOnLoad( go );
             var canvas = go.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 1000;
@@ -42,7 +43,7 @@
             var eventSystem = UnityEngine.Object.FindObjectOfType<EventSystem>();
             if( eventSystem == null ) {
 
-                new GameObject( "EventSystem", typeof(EventSystem), typeof(StandaloneInputModule) );
+                UnityEngine.Object.DontDestroyOnLoad( new GameObject( "EventSystem", typeof(EventSystem), typeof(StandaloneInputModule) ) );
             }
         }
 

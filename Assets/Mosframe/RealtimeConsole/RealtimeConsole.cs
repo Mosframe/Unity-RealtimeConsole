@@ -51,7 +51,6 @@ namespace Mosframe
         void Awake() {
 
             Instance = this;
-            DontDestroyOnLoad(this.gameObject);
 
             this.init();
 
