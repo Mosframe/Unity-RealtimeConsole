@@ -1,20 +1,21 @@
-﻿/**
+﻿/*
  * RealtimeConsole.cs
  * 
  * @author mosframe / https://github.com/mosframe
  * 
  */
 
-namespace Mosframe
-{
-    using UnityEngine;
-    using UnityEngine.UI;
+namespace Mosframe {
+
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Reflection;
+    using UnityEngine;
+    using UnityEngine.UI;
 
     /// <summary>
     /// Realtime Console
@@ -145,11 +146,20 @@ namespace Mosframe
 
         IEnumerator onSeedData() {
 
-            for( var i=0; i<30; ++i ) {
+            Debug.Log( RichText.white("▼ [ System Info ] --------------------------------------------------------------") );
+            var properties = typeof(SystemInfo).GetProperties( BindingFlags.Instance|BindingFlags.Static|BindingFlags.Public );
+            foreach( var property in properties ) {
 
-                yield return null;
-                Debug.Log("");
+                Debug.Log( string.Format( "{0} = {1}", RichText.orange(property.Name), RichText.white(property.GetValue(null,null)) ) );
             }
+            Debug.Log( RichText.white("▲ [ System Info ] --------------------------------------------------------------") );
+
+            this.save();
+
+            yield return null;
+
+            this.listView.scrollToLastPos();
+
         }
 
         IEnumerator reflash() {

@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * DynamicScrollView.cs
  * 
  * @author mosframe / https://github.com/mosframe
@@ -18,29 +18,17 @@
     [RequireComponent(typeof(ScrollRect))]
     public abstract class DynamicScrollView : UIBehaviour {
 
-        /// <summary> Scroll Direction </summary>
-	    public enum Direction {
-            Vertical,
-            Horizontal,
+
+	    public int             totalItemCount   = 99;
+	    public RectTransform   itemPrototype    = null;
+
+
+        public void scrollToLastPos () {
+
+            this.contentAnchoredPosition = this.viewportSize - this.contentSize;
+            this.refresh();
         }
 
-	    public int                              totalItemCount          = 99;
-	    public RectTransform                    itemPrototype           = null;
-
-        protected abstract float                contentAnchoredPosition { get; set; }
-	    protected abstract float                contentSize             { get; }
-	    protected abstract float                viewportSize            { get; }
-
-        protected Direction                     _direction              = Direction.Vertical;
-        protected LinkedList<RectTransform>     _containers             = new LinkedList<RectTransform>();
-        protected float                         _prevAnchoredPosition   = 0;
-	    protected int                           _nextInsertItemNo       = 0; // 다음 삽입할 아이템 인덱스 ( 뷰포트 상단/좌측 기준 )
-        protected float                         _itemSize               = -1;
-	    protected int                           _prevTotalItemCount     = 99;
-        protected RectTransform                 _viewportRect           = null;
-        protected RectTransform                 _contentRect            = null;
-
-        // Awake
 
         protected override void Awake () {
 
@@ -52,26 +40,23 @@
             base.Awake();
 
             var scrollRect      = this.GetComponent<ScrollRect>();
-            this._viewportRect  = scrollRect.viewport;
-            this._contentRect   = scrollRect.content;
+            this.viewportRect  = scrollRect.viewport;
+            this.contentRect   = scrollRect.content;
         }
-
-        // Start
-
         protected override void Start () {
 
             this.itemPrototype.gameObject.SetActive(false);
 
-            this._prevTotalItemCount = this.totalItemCount;
+            this.prevTotalItemCount = this.totalItemCount;
 
             // instantiate items
-            var itemCount = (int)(this.viewportSize / this._itemSize) + 3;
+            var itemCount = (int)(this.viewportSize / this.itemSize) + 3;
 		    for( var i = 0; i < itemCount; ++i ) {
 			    var itemRect = Instantiate( this.itemPrototype );
-			    itemRect.SetParent( this._contentRect, false );
+			    itemRect.SetParent( this.contentRect, false );
 			    itemRect.name = i.ToString();
-			    itemRect.anchoredPosition = this._direction == Direction.Vertical ? new Vector2(0, -this._itemSize * i) : new Vector2( this._itemSize * i, 0);
-                this._containers.AddLast( itemRect );
+			    itemRect.anchoredPosition = this.direction == Direction.Vertical ? new Vector2(0, -this.itemSize * i) : new Vector2( this.itemSize * i, 0);
+                this.containers.AddLast( itemRect );
 
 			    itemRect.gameObject.SetActive( true );
 
@@ -81,19 +66,16 @@
             // resize content
 			this.resizeContent();
 	    }
-
-        // update
-
 	    private void Update () {
 
-            if( this.totalItemCount != this._prevTotalItemCount ) {
+            if( this.totalItemCount != this.prevTotalItemCount ) {
 
-                this._prevTotalItemCount = this.totalItemCount;
+                this.prevTotalItemCount = this.totalItemCount;
 
                 // check scroll bottom
 
                 var isBottom = false;
-                if( this.viewportSize-this.contentAnchoredPosition >= this.contentSize-this._itemSize*0.5f ) {
+                if( this.viewportSize-this.contentAnchoredPosition >= this.contentSize-this.itemSize*0.5f ) {
                     isBottom = true;
                 }
 
@@ -111,88 +93,82 @@
 
             // [ Scroll up ]
 
-		    while( this.contentAnchoredPosition - this._prevAnchoredPosition  < -this._itemSize * 2 ) {
+		    while( this.contentAnchoredPosition - this.prevAnchoredPosition  < -this.itemSize * 2 ) {
 
-                this._prevAnchoredPosition -= this._itemSize;
+                this.prevAnchoredPosition -= this.itemSize;
 
                 // move a first item to last
 
-                var item = this._containers.First.Value;
-                this._containers.RemoveFirst();
-                this._containers.AddLast(item);
+                var item = this.containers.First.Value;
+                this.containers.RemoveFirst();
+                this.containers.AddLast(item);
 
                 // set item position
 
-                var pos = this._itemSize * ( this._containers.Count + this._nextInsertItemNo );
-			    item.anchoredPosition = (this._direction == Direction.Vertical) ? new Vector2(0, -pos) : new Vector2(pos, 0);
+                var pos = this.itemSize * ( this.containers.Count + this.nextInsertItemNo );
+			    item.anchoredPosition = (this.direction == Direction.Vertical) ? new Vector2(0, -pos) : new Vector2(pos, 0);
 
                 // update item
 
-                this.updateItem( this._containers.Count+this._nextInsertItemNo, item.gameObject );
+                this.updateItem( this.containers.Count+this.nextInsertItemNo, item.gameObject );
 
-			    this._nextInsertItemNo++;
+			    this.nextInsertItemNo++;
 		    }
 
             // [ Scroll down ]
 
-            while ( this.contentAnchoredPosition - this._prevAnchoredPosition > 0 ) {
+            while ( this.contentAnchoredPosition - this.prevAnchoredPosition > 0 ) {
 
-                this._prevAnchoredPosition += this._itemSize;
+                this.prevAnchoredPosition += this.itemSize;
 
                 // move a last item to first
 
-			    var item = this._containers.Last.Value;
-                this._containers.RemoveLast();
-                this._containers.AddFirst(item);
+			    var item = this.containers.Last.Value;
+                this.containers.RemoveLast();
+                this.containers.AddFirst(item);
 
-                this._nextInsertItemNo--;
+                this.nextInsertItemNo--;
 
                 // set item position
 
-			    var pos = this._itemSize * this._nextInsertItemNo;
-			    item.anchoredPosition = (this._direction == Direction.Vertical) ? new Vector2(0,-pos): new Vector2(pos,0);
+			    var pos = this.itemSize * this.nextInsertItemNo;
+			    item.anchoredPosition = (this.direction == Direction.Vertical) ? new Vector2(0,-pos): new Vector2(pos,0);
 
                 // update item
 
-                this.updateItem( this._nextInsertItemNo, item.gameObject );
+                this.updateItem( this.nextInsertItemNo, item.gameObject );
 		    }
 	    }
-                
-        // refresh
+
 
         private void refresh () {
 
             var index = 0;
             if( this.contentAnchoredPosition != 0 ) {
-                index = (int)(-this.contentAnchoredPosition / this._itemSize);
+                index = (int)(-this.contentAnchoredPosition / this.itemSize);
             }
 
-            foreach( var itemRect in  this._containers ) {
+            foreach( var itemRect in  this.containers ) {
 
                 // set item position
-                var pos = this._itemSize * index;
-			    itemRect.anchoredPosition = (this._direction == Direction.Vertical) ? new Vector2(0, -pos) : new Vector2(pos, 0);
+                var pos = this.itemSize * index;
+			    itemRect.anchoredPosition = (this.direction == Direction.Vertical) ? new Vector2(0, -pos) : new Vector2(pos, 0);
 
                 this.updateItem( index, itemRect.gameObject );
 
                 ++index;
             }
 
-            this._nextInsertItemNo = index - this._containers.Count;
-            this._prevAnchoredPosition = (int)(this.contentAnchoredPosition / this._itemSize) * this._itemSize;
+            this.nextInsertItemNo = index - this.containers.Count;
+            this.prevAnchoredPosition = (int)(this.contentAnchoredPosition / this.itemSize) * this.itemSize;
         }
-
-        // resize content
-
         private void resizeContent () {
 
-            var size = this._contentRect.getSize();
-            if( this._direction == Direction.Vertical ) size.y = this._itemSize * this.totalItemCount;
-            else                                        size.x = this._itemSize * this.totalItemCount;
-            this._contentRect.setSize( size );
+            var size = this.contentRect.getSize();
+            if( this.direction == Direction.Vertical ) size.y = this.itemSize * this.totalItemCount;
+            else                                        size.x = this.itemSize * this.totalItemCount;
+            this.contentRect.setSize( size );
         }
-
-        // update item
 	    private void updateItem ( int index, GameObject itemObj ) {
 
 		    if( index < 0 || index >= this.totalItemCount ) {
@@ -209,7 +185,6 @@
 	    }
 
 
-        // Reset
 
         [ContextMenu("Initialize")]
         public virtual void init () {
@@ -226,8 +201,9 @@
             // [ ScrollRect ]
 
             var scrollRect = this.GetComponent<ScrollRect>();
-            scrollRect.horizontal   = this._direction == Direction.Horizontal;
-            scrollRect.vertical     = this._direction == Direction.Vertical;
+            scrollRect.horizontal   = this.direction == Direction.Horizontal;
+            scrollRect.vertical     = this.direction == Direction.Vertical;
+            scrollRect.scrollSensitivity = 1f;
 
             // [ ScrollRect / Viewport ]
 
@@ -247,7 +223,7 @@
 
             var contentRect = new GameObject( "Content", typeof(RectTransform) ).GetComponent<RectTransform>();
             contentRect.SetParent( viewportRect, false );
-            if( this._direction == Direction.Horizontal ) contentRect.setSizeFromLeft( 1.0f ); else contentRect.setSizeFromTop( 1.0f );
+            if( this.direction == Direction.Horizontal ) contentRect.setSizeFromLeft( 1.0f ); else contentRect.setSizeFromTop( 1.0f );
             var contentRectSize = contentRect.getSize();
             contentRect.setSize( contentRectSize-contentRectSize*0.06f );
             scrollRect.content = contentRect;
@@ -259,15 +235,15 @@
 
             // [ ScrollRect / Scrollbar ]
 
-            var scrollbarName = this._direction == Direction.Horizontal ? "Scrollbar Horizontal" : "Scrollbar Vertical";
+            var scrollbarName = this.direction == Direction.Horizontal ? "Scrollbar Horizontal" : "Scrollbar Vertical";
             var scrollbarRect = new GameObject( scrollbarName, typeof(Scrollbar), typeof(Image) ).GetComponent<RectTransform>();
             scrollbarRect.SetParent( viewportRect, false );
-            if( this._direction == Direction.Horizontal ) scrollbarRect.setSizeFromBottom( 0.05f ); else scrollbarRect.setSizeFromRight( 0.05f );
+            if( this.direction == Direction.Horizontal ) scrollbarRect.setSizeFromBottom( 0.05f ); else scrollbarRect.setSizeFromRight( 0.05f );
             scrollbarRect.SetParent( scrollRect.transform, true );
 
             var scrollbar = scrollbarRect.GetComponent<Scrollbar>();
-            scrollbar.direction = ( this._direction == Direction.Horizontal ) ? Scrollbar.Direction.LeftToRight : Scrollbar.Direction.BottomToTop;
-            if( this._direction == Direction.Horizontal ) scrollRect.horizontalScrollbar = scrollbar; else scrollRect.verticalScrollbar = scrollbar;
+            scrollbar.direction = ( this.direction == Direction.Horizontal ) ? Scrollbar.Direction.LeftToRight : Scrollbar.Direction.BottomToTop;
+            if( this.direction == Direction.Horizontal ) scrollRect.horizontalScrollbar = scrollbar; else scrollRect.verticalScrollbar = scrollbar;
 
             // [ ScrollRect / Scrollbar / Image ]
 
@@ -310,16 +286,13 @@
 
             this.gameObject.setLayer( this.transform.parent.gameObject.layer, true );
         }
-
-        // reset prototype item 
-
         protected virtual void resetPrototypeItem( RectTransform contentRect ) {
 
             // [ ScrollRect / Viewport / Content / PrototypeItem ]
 
             var prototypeItemRect = new GameObject( "Prototype Item", typeof(RectTransform), typeof(Image), typeof(DynamicScrollViewItemExample) ).GetComponent<RectTransform>();
             prototypeItemRect.SetParent( contentRect, false );
-            if( this._direction == Direction.Horizontal ) prototypeItemRect.setSizeFromLeft(0.23f); else prototypeItemRect.setSizeFromTop(0.23f);
+            if( this.direction == Direction.Horizontal ) prototypeItemRect.setSizeFromLeft(0.23f); else prototypeItemRect.setSizeFromTop(0.23f);
             var prototypeItem = prototypeItemRect.GetComponent<DynamicScrollViewItemExample>();
             var prototypeItemBg = prototypeItemRect.GetComponent<Image>();
             #if UNITY_EDITOR
@@ -348,12 +321,36 @@
             title.resizeTextMaxSize     = 40;
             prototypeItem.title = title;
         }
-
         protected virtual void clear() {
 
             while( this.transform.childCount>0 ) {
                 DestroyImmediate( this.transform.GetChild( 0 ).gameObject );
             }
+        }
+
+
+        protected abstract float    contentAnchoredPosition { get; set; }
+	    protected abstract float    contentSize             { get; }
+	    protected abstract float    viewportSize            { get; }
+
+
+
+        protected Direction                     direction               = Direction.Vertical;
+        protected LinkedList<RectTransform>     containers              = new LinkedList<RectTransform>();
+        protected float                         prevAnchoredPosition    = 0;
+	    protected int                           nextInsertItemNo        = 0; // 다음 삽입할 아이템 인덱스 ( 뷰포트 상단/좌측 기준 )
+        protected float                         itemSize                = -1;
+	    protected int                           prevTotalItemCount      = 99;
+        protected RectTransform                 viewportRect            = null;
+        protected RectTransform                 contentRect             = null;
+
+
+
+
+        /// <summary> Scroll Direction </summary>
+	    public enum Direction {
+            Vertical,
+            Horizontal,
         }
     }
 }

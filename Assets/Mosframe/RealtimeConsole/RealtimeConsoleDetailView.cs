@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * RealtimeConsoleDetailView.cs
  * 
  * @author mosframe / https://github.com/mosframe
@@ -6,6 +6,7 @@
  */
 
 namespace Mosframe {
+
     using UnityEngine;
     using UnityEngine.UI;
     using UnityEngine.EventSystems;

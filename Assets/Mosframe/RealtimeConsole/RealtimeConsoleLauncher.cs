@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * RealtimeConsoleLauncher.cs
  * 
  * @author mosframe / https://github.com/mosframe

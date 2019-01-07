@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * ScrollbarHandleSize.cs
  * 
  * @author mosframe / https://github.com/mosframe

@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * RealtimeConsoleListViewItem.cs
  * 
  * @author mosframe / https://github.com/mosframe
@@ -6,6 +6,7 @@
  */
 
 namespace Mosframe {
+
     using System.Text;
     using UnityEngine;
     using UnityEngine.UI;

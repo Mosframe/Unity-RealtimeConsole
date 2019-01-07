@@ -1,12 +1,12 @@
-﻿/**
+﻿/*
  * RectTransformEx.cs
  * 
  * @author mosframe / https://github.com/mosframe
  * 
  */
 
-namespace Mosframe
-{
+namespace Mosframe {
+
     using UnityEngine;
 
     /// <summary>

@@ -1,19 +1,18 @@
-/**
+/*
  * xRichText.cs
  * 
  * @author mosframe / https://github.com/mosframe
  * 
  */
 
-namespace Mosframe
-{
+namespace Mosframe {
+
     using System.Text;
 	
 	/// <summary>
 	/// xRichText
 	/// </summary>
-	public class RichText
-	{
+	public class RichText {
         public static string bold       ( object text                   ) { return new StringBuilder("<b>"       ).Append( text  ).Append("</b>").ToString(); }
         public static string italic     ( object text                   ) { return new StringBuilder("<i>"       ).Append( text  ).Append("</i>").ToString(); }
         public static string size       ( object text, int      size    ) { return new StringBuilder("<size="    ).Append( size  ).Append(">").Append(text).Append("</size>" ).ToString(); }

@@ -1,12 +1,12 @@
-﻿/**
+﻿/*
  * RealtimeConsoleListView.cs
  * 
  * @author mosframe / https://github.com/mosframe
  * 
  */
 
-namespace Mosframe
-{
+namespace Mosframe {
+
     using UnityEngine;
     using UnityEngine.UI;
 
@@ -24,7 +24,7 @@ namespace Mosframe
         }
         public override void init() {
 
-            this._direction = Direction.Vertical;
+            this.direction = Direction.Vertical;
 
             // [ ScrollRect ]
 
@@ -59,7 +59,7 @@ namespace Mosframe
 
             // [ ScrollRect / Scrollbar ]
 
-            var scrollbarName = this._direction == Direction.Horizontal ? "Scrollbar Horizontal" : "Scrollbar Vertical";
+            var scrollbarName = this.direction == Direction.Horizontal ? "Scrollbar Horizontal" : "Scrollbar Vertical";
             var scrollbarRect = new GameObject( scrollbarName, typeof(Scrollbar), typeof(Image) ).GetComponent<RectTransform>();
             scrollbarRect.SetParent( contentRect, false );
             scrollbarRect.setSizeFromRight( 0.01f );
