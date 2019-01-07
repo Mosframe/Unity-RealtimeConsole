@@ -147,7 +147,10 @@ namespace Mosframe {
         IEnumerator onSeedData() {
 
             Debug.Log( RichText.white("▼ [ System Info ] --------------------------------------------------------------") );
-            var properties = typeof(SystemInfo).GetProperties( BindingFlags.Instance|BindingFlags.Static|BindingFlags.Public );
+            //var properties = typeof(SystemInfo).GetProperties( BindingFlags.Instance|BindingFlags.Static|BindingFlags.Public ).OrderBy(x=>x.Name); // linq
+            var properties = new List<PropertyInfo>( typeof(SystemInfo).GetProperties( BindingFlags.Instance|BindingFlags.Static|BindingFlags.Public ) );
+            properties.Sort( (x,y)=>{ return x.Name.CompareTo(y.Name); } );
+
             foreach( var property in properties ) {
 
                 Debug.Log( string.Format( "{0} = {1}", RichText.orange(property.Name), RichText.white(property.GetValue(null,null)) ) );

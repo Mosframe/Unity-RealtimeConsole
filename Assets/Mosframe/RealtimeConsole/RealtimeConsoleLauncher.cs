@@ -15,7 +15,6 @@
     /// <summary>
     /// Realtime Console Launcher
     /// </summary>
-    [DefaultExecutionOrder(0)]
     public static class RealtimeConsoleLauncher {
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -46,6 +45,5 @@
                 UnityEngine.Object.DontDestroyOnLoad( new GameObject( "EventSystem", typeof(EventSystem), typeof(StandaloneInputModule) ) );
             }
         }
-
     }
 }
