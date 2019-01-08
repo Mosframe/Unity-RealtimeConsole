@@ -31,6 +31,7 @@ namespace Mosframe {
             var scrollRect = this.GetComponent<ScrollRect>();
             scrollRect.horizontal   = false;
             scrollRect.vertical     = true;
+            scrollRect.scrollSensitivity = 15;
 
             // [ ScrollRect / Viewport ]
 
