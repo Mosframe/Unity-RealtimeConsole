@@ -18,17 +18,21 @@
         protected override float contentAnchoredPosition    { get { return this.contentRect.anchoredPosition.x; } set { this.contentRect.anchoredPosition = new Vector2( value, this.contentRect.anchoredPosition.y ); } }
 	    protected override float contentSize                { get { return this.contentRect.rect.width; } }
 	    protected override float viewportSize               { get { return this.viewportRect.rect.width; } }
+	    protected override float itemSize                   { get { return this.itemPrototype.rect.width;} }
 
-        protected override void Awake() {
-
-            base.Awake();
-            this.direction = Direction.Horizontal;
-            this.itemSize = this.itemPrototype.rect.width;
-        }
         public override void init () {
 
             this.direction = Direction.Horizontal;
             base.init();
+        }
+        protected override void Awake() {
+
+            base.Awake();
+            this.direction = Direction.Horizontal;
+        }
+        protected override void Start () {
+
+            base.Start();
         }
     }
 }

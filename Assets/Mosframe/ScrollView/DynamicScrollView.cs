@@ -11,47 +11,86 @@
     using UnityEngine;
     using UnityEngine.UI;
     using UnityEngine.EventSystems;
-    
+    using System.Collections;
+
     /// <summary>
     /// Dynamic Scroll View
     /// </summary>
     [RequireComponent(typeof(ScrollRect))]
     public abstract class DynamicScrollView : UIBehaviour {
 
-
 	    public int             totalItemCount   = 99;
 	    public RectTransform   itemPrototype    = null;
-
 
         public void scrollToLastPos () {
 
             this.contentAnchoredPosition = this.viewportSize - this.contentSize;
             this.refresh();
         }
+        public void scrollByItemIndex ( int itemIndex ) {
+
+            var totalLen = this.contentSize;
+            var itemLen  = totalLen / this.totalItemCount;
+            var pos = itemLen * itemIndex;
+            this.contentAnchoredPosition = -pos;
+        }
+        public void refresh () {
+
+            var index = 0;
+            if( this.contentAnchoredPosition != 0 ) {
+                index = (int)(-this.contentAnchoredPosition / this.itemSize);
+            }
+
+            foreach( var itemRect in  this.containers ) {
+
+                // set item position
+                var pos = this.itemSize * index;
+			    itemRect.anchoredPosition = (this.direction == Direction.Vertical) ? new Vector2(0, -pos) : new Vector2(pos, 0);
+
+                this.updateItem( index, itemRect.gameObject );
+
+                ++index;
+            }
+
+            this.nextInsertItemNo = index - this.containers.Count;
+            this.prevAnchoredPosition = (int)(this.contentAnchoredPosition / this.itemSize) * this.itemSize;
+        }
 
 
         protected override void Awake () {
 
             if( this.itemPrototype == null ) {
-                Debug.LogError( RichText.red(new{this.name,this.itemPrototype}) );
+                Debug.LogError( RichText.Red(new{this.name,this.itemPrototype}) );
                 return;
             }
 
             base.Awake();
 
-            var scrollRect      = this.GetComponent<ScrollRect>();
-            this.viewportRect  = scrollRect.viewport;
-            this.contentRect   = scrollRect.content;
+            this.scrollRect    = this.GetComponent<ScrollRect>();
+            this.viewportRect  = this.scrollRect.viewport;
+            this.contentRect   = this.scrollRect.content;
         }
         protected override void Start () {
 
-            this.itemPrototype.gameObject.SetActive(false);
-
             this.prevTotalItemCount = this.totalItemCount;
 
+            this.StartCoroutine( this.onSeedData() );
+	    }
+
+        protected virtual IEnumerator onSeedData() {
+
+            yield return null;
+
+            // hide prototype
+
+            this.itemPrototype.gameObject.SetActive(false);
+
             // instantiate items
+
             var itemCount = (int)(this.viewportSize / this.itemSize) + 3;
+
 		    for( var i = 0; i < itemCount; ++i ) {
+
 			    var itemRect = Instantiate( this.itemPrototype );
 			    itemRect.SetParent( this.contentRect, false );
 			    itemRect.name = i.ToString();
@@ -63,9 +102,13 @@
 				this.updateItem( i, itemRect.gameObject );
 		    }
 
+
             // resize content
+
 			this.resizeContent();
-	    }
+        }
+
+
 	    private void Update () {
 
             if( this.totalItemCount != this.prevTotalItemCount ) {
@@ -99,7 +142,9 @@
 
                 // move a first item to last
 
-                var item = this.containers.First.Value;
+                var first = this.containers.First;
+                if( first == null ) break;
+                var item = first.Value;
                 this.containers.RemoveFirst();
                 this.containers.AddLast(item);
 
@@ -123,7 +168,9 @@
 
                 // move a last item to first
 
-			    var item = this.containers.Last.Value;
+                var last = this.containers.Last;
+                if( last == null ) break;
+			    var item = last.Value;
                 this.containers.RemoveLast();
                 this.containers.AddFirst(item);
 
@@ -140,33 +187,11 @@
 		    }
 	    }
 
-
-        private void refresh () {
-
-            var index = 0;
-            if( this.contentAnchoredPosition != 0 ) {
-                index = (int)(-this.contentAnchoredPosition / this.itemSize);
-            }
-
-            foreach( var itemRect in  this.containers ) {
-
-                // set item position
-                var pos = this.itemSize * index;
-			    itemRect.anchoredPosition = (this.direction == Direction.Vertical) ? new Vector2(0, -pos) : new Vector2(pos, 0);
-
-                this.updateItem( index, itemRect.gameObject );
-
-                ++index;
-            }
-
-            this.nextInsertItemNo = index - this.containers.Count;
-            this.prevAnchoredPosition = (int)(this.contentAnchoredPosition / this.itemSize) * this.itemSize;
-        }
         private void resizeContent () {
 
             var size = this.contentRect.getSize();
             if( this.direction == Direction.Vertical ) size.y = this.itemSize * this.totalItemCount;
-            else                                        size.x = this.itemSize * this.totalItemCount;
+            else                                       size.x = this.itemSize * this.totalItemCount;
             this.contentRect.setSize( size );
         }
 	    private void updateItem ( int index, GameObject itemObj ) {
@@ -203,7 +228,7 @@
             var scrollRect = this.GetComponent<ScrollRect>();
             scrollRect.horizontal   = this.direction == Direction.Horizontal;
             scrollRect.vertical     = this.direction == Direction.Vertical;
-            scrollRect.scrollSensitivity = 1f;
+            scrollRect.scrollSensitivity = 15f;
 
             // [ ScrollRect / Viewport ]
 
@@ -332,15 +357,15 @@
         protected abstract float    contentAnchoredPosition { get; set; }
 	    protected abstract float    contentSize             { get; }
 	    protected abstract float    viewportSize            { get; }
-
+        protected abstract float    itemSize                { get; }
 
 
         protected Direction                     direction               = Direction.Vertical;
         protected LinkedList<RectTransform>     containers              = new LinkedList<RectTransform>();
         protected float                         prevAnchoredPosition    = 0;
-	    protected int                           nextInsertItemNo        = 0; // 다음 삽입할 아이템 인덱스 ( 뷰포트 상단/좌측 기준 )
-        protected float                         itemSize                = -1;
+	    protected int                           nextInsertItemNo        = 0; // item index from left-top of viewport at next insert
 	    protected int                           prevTotalItemCount      = 99;
+        protected ScrollRect                    scrollRect              = null;
         protected RectTransform                 viewportRect            = null;
         protected RectTransform                 contentRect             = null;
 

@@ -33,12 +33,11 @@ namespace Mosframe {
 
                 var sb = new StringBuilder();
 
+                sb.Append( RichText.Bold( RichText.Color( "Test : 한글테스트 : 1234567890\nABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", new Color32( (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), 255 ).toHtmlColor() ) ) );
+                sb.Append( RichText.Color( Random.Range( 1000, 10000 ), new Color32( (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), 255 ).toHtmlColor() ) ).Append( '\n' );
 
-                sb.Append( RichText.bold( RichText.color( "Test : 한글테스트 : 1234567890\nABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", HtmlColor.convert( new Color32( (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), 255 ) ) ) ) );
-                sb.Append( RichText.color( Random.Range( 1000, 10000 ), HtmlColor.convert( new Color32( (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), 255 ) ) ) ).Append( '\n' );
-
-                sb.Append( RichText.color( "Test Value : ", HtmlColor.convert( new Color32( (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), 255 ) ) ) );
-                sb.Append( RichText.color( Random.Range( 100000, 1000000 ), HtmlColor.convert( new Color32( (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), 255 ) ) ) ).Append( '\n' );
+                sb.Append( RichText.Color( "Test Value : ", new Color32( (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), 255 ).toHtmlColor() ) );
+                sb.Append( RichText.Color( Random.Range( 100000, 1000000 ), new Color32( (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), (byte)Random.Range( 0, 256 ), 255 ).toHtmlColor() ) ).Append( '\n' );
 
                 var p = Random.Range(0,100);
                 if( p < 30 ) {
@@ -51,8 +50,6 @@ namespace Mosframe {
                 else {
                     Debug.Log( sb );
                 }
-
-
 
                 yield return new WaitForSeconds( 0.5f );
             }

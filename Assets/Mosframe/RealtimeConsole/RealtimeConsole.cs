@@ -5,6 +5,7 @@
  * 
  */
 
+
 namespace Mosframe {
 
     using System;
@@ -22,8 +23,9 @@ namespace Mosframe {
     /// </summary>
     public class RealtimeConsole : MonoBehaviour {
 
-        public const int    MaxStorageSize  = 1000;
         public const string SaveFileName    = "console.log";
+
+        public static int   MaxStorageSize  = 1000;
 
         // singleton
 
@@ -63,7 +65,10 @@ namespace Mosframe {
             this.warningIcon= Resources.Load<Sprite>( "console-icon-warning" );
             this.errorIcon  = Resources.Load<Sprite>( "console-icon-error" );
 
-            this.StartCoroutine( this.onSeedData() );
+            //if( !Application.isEditor ) {
+
+                this.StartCoroutine( this.onSeedData() );
+            //}
         }
         void Update () {
 
@@ -73,7 +78,6 @@ namespace Mosframe {
                 this.StartCoroutine( this.reflash() );
                 return;
             }
-
 
             // Right Shift + C
 
@@ -93,6 +97,13 @@ namespace Mosframe {
 
                     this.save();
                 }
+            }
+
+            // Right Shift + I
+
+            if( Input.GetKey( KeyCode.RightShift ) && Input.GetKeyDown( KeyCode.I ) ) {
+
+                this.StartCoroutine( this.onSeedData() );
             }
         }
         void OnDestroy() {
@@ -146,23 +157,23 @@ namespace Mosframe {
 
         IEnumerator onSeedData() {
 
-            Debug.Log( RichText.white("▼ [ System Info ] --------------------------------------------------------------") );
-            //var properties = typeof(SystemInfo).GetProperties( BindingFlags.Instance|BindingFlags.Static|BindingFlags.Public ).OrderBy(x=>x.Name); // linq
-            var properties = new List<PropertyInfo>( typeof(SystemInfo).GetProperties( BindingFlags.Instance|BindingFlags.Static|BindingFlags.Public ) );
-            properties.Sort( (x,y)=>{ return x.Name.CompareTo(y.Name); } );
+            yield return null;
 
+            Debug.Log( RichText.White("▼ [ System Info ] --------------------------------------------------------------") );
+            var properties = typeof(SystemInfo).GetProperties( BindingFlags.Instance|BindingFlags.Static|BindingFlags.Public ).OrderBy(x=>x.Name); // linq
+            //var properties = new List<PropertyInfo>( typeof(SystemInfo).GetProperties( BindingFlags.Instance|BindingFlags.Static|BindingFlags.Public ) );
+            //properties.Sort( (x,y)=>{ return x.Name.CompareTo(y.Name); } );
             foreach( var property in properties ) {
 
-                Debug.Log( string.Format( "{0} = {1}", RichText.orange(property.Name), RichText.white(property.GetValue(null,null)) ) );
+                Debug.Log( string.Format( "{0} = {1}", RichText.Orange(property.Name), RichText.White(property.GetValue(null,null)) ) );
             }
-            Debug.Log( RichText.white("▲ [ System Info ] --------------------------------------------------------------") );
+            Debug.Log( RichText.White("▲ [ System Info ] --------------------------------------------------------------") );
 
             this.save();
 
             yield return null;
 
             this.listView.scrollToLastPos();
-
         }
 
         IEnumerator reflash() {
@@ -210,7 +221,7 @@ namespace Mosframe {
 
         Vector2 screenSize  { get { return new Vector2(Screen.width,Screen.height); } }
         Vector3 openedPosition { get { return new Vector3( -Screen.width/2f, -Screen.height/2f, 0f ); } }
-        Vector3 closedPosition { get { return new Vector3( -Screen.width/2f, -Screen.height   , 0f ); } }
+        Vector3 closedPosition { get { return new Vector3( -Screen.width/2f, -Screen.height*3f, 0f ); } }
 
 
         RealtimeConsoleListView     listView;

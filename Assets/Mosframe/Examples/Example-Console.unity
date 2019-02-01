@@ -256,7 +256,9 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: 'Open/Close : <color=orange>Right Shift + C</color>
 
-    Save : <color=orange>Opened + Right Shift + S</color>'
+    Save : <color=orange>Opened + Right Shift + S</color>
+
+    Copy to clipboard : <color=orange>Item Click</color>'
 --- !u!222 &585498621
 CanvasRenderer:
   m_ObjectHideFlags: 0
